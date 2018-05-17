@@ -1,7 +1,9 @@
 
 const express = require('express');
+
 const router = express.Router();
 const { Pool } = require('pg');
+
 const pool = new Pool({
   database: 'hg',
   host: 'localhost',
@@ -21,19 +23,19 @@ router.post('/coupons', (request, response) => {
     release();
     if (err) {
       response.send({
-        "code": "server error",
-        "message": "Server error occurred"
+        code: 'server error',
+        message: 'Server error occurred'
       });
       return;
     }
     const q = 'select email from coupon where email=$1';
     client.query(q, [
       email
-    ], (err, result) => {
-      if (err) {
+    ], (err1, result) => {
+      if (err1) {
         response.send({
-          "code": "query error",
-          "message": "There was an error fetching your data."
+          code: 'query error',
+          message: 'There was an error fetching your data.'
         });
       } else {
         if (result.rowCount == 0) {
@@ -42,27 +44,34 @@ router.post('/coupons', (request, response) => {
           ], (err, result) => {
             if (err) {
               response.send({
-                "code": "query error",
-                "message": "There was an error getting a new coupon."
+                code: 'query error',
+                message: 'There was an error getting a new coupon.'
               });
             } else {
               response.send({
-                "code": "success",
-                "message": "Coupon generated"
+                code: 'success',
+                message: 'Coupon generated'
               });
             }
           });
         } else {
           response.send({
-            "code": "duplicate error",
-            "message": "Coupons have been issued with duplicate emails."
+            code: 'duplicate error',
+            message: 'Coupons have been issued with duplicate emails.'
           });
         }
       }
     });
   });
 });
-router.post('/anotherCoupon', (request, response) => {
+router.put('/coupons', (request, response) => {
+  // let error = {
+  //   "code":"server error",
+  //   "message":"eorrrrrrrr"
+  // };
+  // response.status(500).send({
+  //   error
+  // });
   const email = request.body.email;
   const createdDate = new Date();
   const couponNumber = generateCoupon(email, createdDate.getMilliseconds());
@@ -70,16 +79,16 @@ router.post('/anotherCoupon', (request, response) => {
     release();
     if (err) {
       response.send({
-        "code": "server error",
-        "message": "Server error occurred"
+        code: 'server error',
+        message: 'Server error occurred'
       });
       return;
     }
-    const q = "update coupon set coupon=$1, create_at=$2 where email=$3";
+    const q = 'update coupon set coupon=$1, create_at=$2 where email=$3';
     client.query(q, [
       couponNumber, createdDate, email
-    ], (err, result) => {
-      if (err) {
+    ], (err1, result) => {
+      if (err1) {
         response.send({
           "code": "query error",
           "message": "There was an error getting duplicate coupons."
@@ -94,7 +103,7 @@ router.post('/anotherCoupon', (request, response) => {
   });
 });
 
-router.get('/dataList/', (request, response) => {
+router.get('/coupons/', (request, response) => {
   pool.connect((err, client, release) => {
     release();
     if (err) {
@@ -109,14 +118,14 @@ router.get('/dataList/', (request, response) => {
     let q = "select * from coupon where email like '%" + searchString + "%' order by id desc limit 10 offset $1";
     client.query(q, [
       (page - 1) * 10
-    ], (err, result) => {
-      if (err) {
+    ], (err2, result) => {
+      if (err2) {
         response.send({
           "code": "query error",
           "message": "Failed to look up data."
         });
       } else {
-        if (result.rowCount == 0) {
+        if (result.rowCount === 0) {
           response.send({
             "code": "no data error",
             "message": "No data"
@@ -140,7 +149,6 @@ router.get('/dataList/', (request, response) => {
             } else {
               q = "select count(*) from coupon where email like '%" + searchString + "%'";
             }
-            let number = 0;
             client.query(q,
               (err, result) => {
                 if (err) {
@@ -150,10 +158,9 @@ router.get('/dataList/', (request, response) => {
                   });
                   return;
                 } else {
-                  number = result.rows[0].count;
                   response.send({
                     data: data,
-                    number: number
+                    number: result.rows[0].count
                   });
                 }
               });
@@ -164,44 +171,7 @@ router.get('/dataList/', (request, response) => {
   });
 });
 
-router.get('/search/', (request, response) => {
-  pool.connect((err, client, release) => {
-    release();
-    if (err) {
-      response.send({
-        "code": "server error",
-        "message": "Server error occurred"
-      });
-    }
-    const searchString = request.query.searchString;
-    const page = request.query.page;
-
-    const q = "select * from coupon where email like '%" + searchString + "%' order by id desc limit 10 offset $1";
-    client.query(q, [
-      (page - 1) * 10
-    ], (err, result) => {
-      if (err) {
-        response.send({
-          "code": "query error",
-          "message": "Failed to look up data."
-        });
-      } else {
-        if (result.rowCount == 0) {
-          response.send({
-            "code": "no data error",
-            "message": "No results were found for your search."
-          });
-        } else {
-          response.send({
-            "code": "success",
-            "datas": result.rows
-          });
-        }
-      }
-    });
-  });
-});
-router.get('/couponValidation/:coupon', (request, response) => {
+router.get('/coupons/validation/:coupon', (request, response) => {
   pool.connect((err, client, release) => {
     release();
     if (err) {
@@ -225,7 +195,7 @@ router.get('/couponValidation/:coupon', (request, response) => {
         if (result.rowCount != 0) {
           response.send({
             "code": "success",
-            "message": 'This is a valid coupon.'
+            "message": 'Valid coupon.'
           });
         } else {
           response.send({

@@ -11,14 +11,13 @@ class ValidateCoupon extends React.Component {
     this.handleCouponChange = this.handleCouponChange.bind(this);
     this.confirmValidate = this.confirmValidate.bind(this);
   }
-
-  handleCouponChange (e) {
+  handleCouponChange(e) {
     this.setState({
       coupon: e.target.value
     });
   }
 
-  confirmValidate (e) {
+  confirmValidate(e) {
     const coupon = this.state.coupon;
     if (coupon === '') {
       alert('Please enter your coupon number.');
@@ -27,7 +26,7 @@ class ValidateCoupon extends React.Component {
       alert('Please check the length and "-" position of your coupon number.');
       return;
     }
-    const url = 'http://172.21.111.203:11113/CouponValidation/' + coupon;
+    const url = '/coupons/validation/' + coupon;
     axios.get(url)
       .then((response) => {
         alert(response.data.message);
@@ -42,10 +41,10 @@ class ValidateCoupon extends React.Component {
   }
   render() {
     return (
-      <div className='validation'>
+      <div className="validation">
         <input
-          placeholder='aaaa-1111-aaaa-1111'
-          type='text'
+          placeholder="aaaa-1111-aaaa-1111"
+          type="text"
           value={this.state.coupon}
           onChange={this.handleCouponChange}
         />

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import './App.css';
 import axios from 'axios';
+import './App.css';
 import Header from './components/Header';
 import Contents from './components/Contents';
 import List from './components/List';
@@ -10,14 +10,14 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      curPage: 1,              // current page
-      datas: [],               // data array sent to the List component
-      searchString: '',        // current searchword state 
-      pages: [],               // all page array [1,2,3, ...n]
-      email: '',               // current email state
-      checkList: [],           // checkbox state
-      AllClickState: 0,        // all click state
-      isReset: false,           // initialize all checkboxes
+      curPage: 1, // current page
+      datas: [], // data array sent to the List component
+      searchString: '', // current searchword state
+      pages: [], // all page array [1,2,3, ...n]
+      email: '', // current email state
+      checkList: [], // checkbox state
+      AllClickState: 0, // all click state
+      isReset: false, // initialize all checkboxes
       isAllCheckBtnReset: false // initialize entire checkbox
     };
 
@@ -68,17 +68,16 @@ class App extends Component {
   }
 
   createCoupon(e) {
-    console.log('abd')
     const { email } = this.state;
     if (this.checkEmail(email)) {
       return;
     }
-    let url = 'http://172.21.111.203:11113/coupons';
+    let url = '/coupons';
     const data = {
       email
     };
     axios.post(url, data)
-      .then(response => {
+      .then((response) => {
         let isDupReq = false;
         alert(response.data.message);
         if (response.data.code === 'duplicate error') {
@@ -89,8 +88,8 @@ class App extends Component {
           }
         }
         if (isDupReq === true) {
-          url = 'http://172.21.111.203:11113/anotherCoupon';
-          return axios.post(url, data);
+          url = '/coupons';
+          return axios.put(url, data);
         }
       })
       .then((response) => {
@@ -101,7 +100,7 @@ class App extends Component {
         alert(response.data.message);
       })
       .catch((error) => {
-        alert(error.message);
+        console.log(error.response);
       });
     e.preventDefault();
   }
@@ -123,7 +122,7 @@ class App extends Component {
 
   DeleteData() {
     const { checkList } = this.state;
-    let list = [];
+    const list = [];
     for (let i = 0; i < checkList.length; i++) {
       if (checkList[i].ischecked) {
         list.push(checkList[i].id);
@@ -133,9 +132,9 @@ class App extends Component {
       alert('Check the data to be deleted.');
       return;
     }
-    let listObj = {};
+    const listObj = {};
     listObj.list = list;
-    const url = 'http://172.21.111.203:11113/coupons';
+    const url = '/coupons';
 
     axios.delete(url, {
       data: listObj
@@ -171,19 +170,22 @@ class App extends Component {
   getTableList() {
     const { searchString } = this.state;
     const { curPage } = this.state;
-    const url = 'http://172.21.111.203:11113/dataList/?searchString=' + searchString + '&page=' + curPage;
+    const url = '/coupons/?searchString=' + searchString + '&page=' + curPage;
 
     axios.get(url)
       .then((response) => {
         if (response.status === 200) {
           const dataNumber = response.data.number;
           const p = parseInt((dataNumber - 1) / 10, 10) + 1;
-          let arr = [];
+          const arr = [];
           for (let i = 1; i <= p; i++) {
             arr.push(i);
           }
           if (response.data.code === 'no data error') {
             alert('No results were found for your search.');
+            this.setState({
+              searchString: ''
+            });
             return;
           }
           this.setState({
@@ -195,6 +197,9 @@ class App extends Component {
             this.allCheckboxReset();
           });
         } else {
+          console.log(response);
+
+
           alert('No results were found for your search.');
         }
       })
@@ -205,7 +210,7 @@ class App extends Component {
 
   checkListReset() {
     const { datas } = this.state;
-    let list = [];
+    const list = [];
     for (let i = 0; i < datas.length; i++) {
       list.push({
         id: datas[i].id,
@@ -227,9 +232,9 @@ class App extends Component {
   }
 
   moveArrow(e) {
-    const arrow = e.target.dataset.value;   // value = "left" , "right"
-    const startPage = (parseInt((this.state.curPage - 1) / 5, 10)) * 5 + 1;   // 1, 6, 11, ... the first page
-
+    const arrow = e.target.dataset.value; // value = "left" , "right"
+    let startPage = (parseInt((this.state.curPage - 1) / 5, 10)) * 5; // 1, 6, 11,
+    startPage += 1;
     if (arrow === 'right') {
       this.setState({
         curPage: startPage + 5,
@@ -247,7 +252,7 @@ class App extends Component {
     }
   }
 
-  // when the page needs to be initialized when the click box is moved, such as when moving or searching.
+  // the page needs to be initialized when the click box is moved, such as when moving or searching.
   resetAllBtn() {
     this.setState({
       isReset: true

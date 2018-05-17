@@ -3,10 +3,10 @@ import React, { Component } from 'react';
 class SearchBox extends Component {
   render() {
     return (
-      <div id='searchData'>
+      <div id="searchData">
         <input
-          placeholder='searching words'
-          type='text'
+          placeholder="searching words"
+          type="text"
           value={this.props.searchString}
           onChange={this.props.handleEmailChange}
         />

@@ -5,8 +5,8 @@ class CouponGenerate extends Component {
     return (
       <div>
         <input
-          placeholder='abc123@example.com'
-          type='text'
+          placeholder="abc123@example.com"
+          type="text"
           value={this.props.email}
           onChange={this.props.handleInputChange}
         />

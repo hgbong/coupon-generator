@@ -1,25 +1,26 @@
 import React, { Component } from 'react';
-class Page extends Component {
 
-  makePage () {
+class Page extends Component {
+  makePage() {
     const pages = this.props.pages.length;
-    const {curPage} = this.props;
-    const startPage = (parseInt((curPage - 1) / 5, 10)) * 5 + 1;   // 예 : 6
-    const endPage = startPage + 4;                           // 예 : 10
-    let pageList = [];
+    const { curPage } = this.props;
+    let startPage = (parseInt((curPage - 1) / 5, 10)) * 5;
+    startPage += 1;
+    const endPage = startPage + 4;
+    const pageList = [];
     for (let i = startPage; i <= endPage; i++) {
       pageList.push(i);
-      if (i === pages) {    // 다음 페이지 출력x
+      if (i === pages) {
         break;
       }
     }
-    const rightArrow = <button type="button" data-value="right" className='cursor' onClick={this.props.moveArrow}> ▶ </button>;
-    const leftArrow = <button type="button" data-value="left" className='cursor' onClick={this.props.moveArrow}> ◀ </button>;
+    const rightArrow = <button type="button" data-value="right" className="cursor" onClick={this.props.moveArrow}> ▶ </button>;
+    const leftArrow = <button type="button" data-value="left" className="cursor" onClick={this.props.moveArrow}> ◀ </button>;
     const pageTag = pageList.map((page, index) => {
-      if ( page === curPage ) {
-        return <button key={index} type="button" id={index} data-value={page} name="page_btn" className='cursor' style={{fontWeight:'800',color:'gray'}} onClick={this.props.movePage}> {page}p </button>;
+      if (page === curPage) {
+        return <button key={page} type="button" id={index} data-value={page} name="page_btn" className="cursor" style={{ fontWeight: '800', color: 'gray' }} onClick={this.props.movePage}> {page}p </button>;
       } else {
-        return <button key={index} type="button" id={index} data-value={page} name="page_btn" className='cursor' style={{color:'black'}} onClick={this.props.movePage}> {page}p </button>;
+        return <button key={page} type="button" id={index} data-value={page} name="page_btn" className="cursor" style={{ color: 'black' }} onClick={this.props.movePage}> {page}p </button>;
       }
     });
     if (startPage === 1) {

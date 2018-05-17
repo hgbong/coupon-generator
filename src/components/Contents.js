@@ -10,7 +10,7 @@ class Contents extends Component {
       <div>
         <CouponGenerate
           handleInputChange={this.props.handleInputChange}
-          createCoupon={this.props.createCoupon} 
+          createCoupon={this.props.createCoupon}
           email={this.props.email}
         />
         <ValidateCoupon />

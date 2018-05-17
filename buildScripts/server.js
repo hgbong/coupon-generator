@@ -1,9 +1,9 @@
 import express from 'express';
 import path from 'path';
 import open from 'open';
-import config from '../webpack.config.dev';
 import webpack from 'webpack';
 import bodyParser from 'body-parser';
+import config from '../webpack.config.dev';
 
 
 const port = 2223;
@@ -18,15 +18,14 @@ app.use(require('webpack-dev-middleware')(compiler, {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', function (req, res) {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../src/index.html'));
 });
-
 const route = require('./module/module.js');
+
 app.use('/', route);
 
-
-app.listen(port, function (error) {
+app.listen(port, (error) => {
   if (error) {
     console.log(error);
   } else {
