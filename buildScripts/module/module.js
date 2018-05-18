@@ -37,29 +37,27 @@ router.post('/coupons', (request, response) => {
           code: 'query error',
           message: 'There was an error fetching your data.'
         });
+      } else if (result.rowCount === 0) {
+        client.query("insert into coupon values (nextval('seq'),$1,$2,current_timestamp)", [
+          email, couponNumber
+        ], (err2) => {
+          if (err2) {
+            response.send({
+              code: 'query error',
+              message: 'There was an error getting a new coupon.'
+            });
+          } else {
+            response.send({
+              code: 'success',
+              message: 'Coupon generated'
+            });
+          }
+        });
       } else {
-        if (result.rowCount == 0) {
-          client.query("insert into coupon values (nextval('seq'),$1,$2,current_timestamp)", [
-            email, couponNumber
-          ], (err, result) => {
-            if (err) {
-              response.send({
-                code: 'query error',
-                message: 'There was an error getting a new coupon.'
-              });
-            } else {
-              response.send({
-                code: 'success',
-                message: 'Coupon generated'
-              });
-            }
-          });
-        } else {
-          response.send({
-            code: 'duplicate error',
-            message: 'Coupons have been issued with duplicate emails.'
-          });
-        }
+        response.send({
+          code: 'duplicate error',
+          message: 'Coupons have been issued with duplicate emails.'
+        });
       }
     });
   });
@@ -90,13 +88,13 @@ router.put('/coupons', (request, response) => {
     ], (err1, result) => {
       if (err1) {
         response.send({
-          "code": "query error",
-          "message": "There was an error getting duplicate coupons."
+          code: 'query error',
+          message: 'There was an error getting duplicate coupons.'
         });
       } else {
         response.send({
-          "code": "success",
-          "message": "Your coupon number update was successful."
+          code: 'success',
+          message: 'Your coupon number update was successful.'
         });
       }
     });
@@ -104,145 +102,142 @@ router.put('/coupons', (request, response) => {
 });
 
 router.get('/coupons/', (request, response) => {
-  pool.connect((err, client, release) => {
-    release();
-    if (err) {
+  pool.connect((err1, client1, release1) => {
+    release1();
+    if (err1) {
       response.send({
-        "code": "server error",
-        "message": "Server error occurred"
+        code: 'server error',
+        message: 'Server error occurred'
       });
     }
     const searchString = request.query.searchString;
     const page = request.query.page;
     let data;
     let q = "select * from coupon where email like '%" + searchString + "%' order by id desc limit 10 offset $1";
-    client.query(q, [
+    client1.query(q, [
       (page - 1) * 10
-    ], (err2, result) => {
+    ], (err2, result1) => {
       if (err2) {
         response.send({
-          "code": "query error",
-          "message": "Failed to look up data."
+          code: 'query error',
+          message: 'Failed to look up data.'
         });
       } else {
-        if (result.rowCount === 0) {
+        if (result1.rowCount === 0) {
           response.send({
-            "code": "no data error",
-            "message": "No data"
+            code: 'no data error',
+            message: 'No data'
           });
           return;
-        } else {
-          data = result.rows;
-
-          pool.connect((err, client, release) => {
-            release();
-            if (err) {
-              response.send({
-                "code": "server error",
-                "message": "Server error occurred"
-              });
-              return;
-            }
-            const searchString = request.query.searchString;
-            if (searchString === '') {
-              q = "select count(*) from coupon";
-            } else {
-              q = "select count(*) from coupon where email like '%" + searchString + "%'";
-            }
-            client.query(q,
-              (err, result) => {
-                if (err) {
-                  response.send({
-                    "code": "query error",
-                    "message": "There was an error fetching your data."
-                  });
-                  return;
-                } else {
-                  response.send({
-                    data: data,
-                    number: result.rows[0].count
-                  });
-                }
-              });
-          });
         }
+        data = result1.rows;
+
+        pool.connect((err3, client2, release2) => {
+          release2();
+          if (err3) {
+            response.send({
+              code: 'server error',
+              message: 'Server error occurred'
+            });
+            return;
+          }
+          const searchString2 = request.query.searchString;
+          if (searchString2 === '') {
+            q = 'select count(*) from coupon';
+          } else {
+            q = "select count(*) from coupon where email like '%" + searchString + "%'";
+          }
+          client2.query(
+            q,
+            (err4, result2) => {
+              if (err4) {
+                response.send({
+                  code: 'query error',
+                  message: 'There was an error fetching your data.'
+                });
+              } else {
+                response.send({
+                  data: data,
+                  number: result2.rows[0].count
+                });
+              }
+            }
+          );
+        });
       }
     });
   });
 });
 
 router.get('/coupons/validation/:coupon', (request, response) => {
-  pool.connect((err, client, release) => {
+  pool.connect((err1, client, release) => {
     release();
-    if (err) {
+    if (err1) {
       response.send({
-        "code": "server error",
-        "message": "Server error occurred"
+        code: 'server error',
+        message: 'Server error occurred'
       });
       return;
     }
     const coupon = request.params.coupon;
-    const q = "select id from coupon where coupon=$1";
+    const q = 'select id from coupon where coupon=$1';
     client.query(q, [
       coupon
-    ], (err, result) => {
-      if (err) {
+    ], (err2, result) => {
+      if (err2) {
         response.send({
-          "code": "server error",
-          "message": "Server error occurred"
+          code: 'server error',
+          message: 'Server error occurred'
+        });
+      } else if (result.rowCount !== 0) {
+        response.send({
+          code: 'success',
+          message: 'Valid coupon.'
         });
       } else {
-        if (result.rowCount != 0) {
-          response.send({
-            "code": "success",
-            "message": 'Valid coupon.'
-          });
-        } else {
-          response.send({
-            "code": "no data error",
-            "message": 'Invalid coupon.'
-          });
-        }
+        response.send({
+          code: 'no data error',
+          message: 'Invalid coupon.'
+        });
       }
     });
   });
 });
 router.delete('/coupons', (request, response) => {
-  pool.connect((err, client, release) => {
+  pool.connect((err1, client, release) => {
     release();
-    if (err) {
+    if (err1) {
       response.send({
-        "code": "server error",
-        "message": "Server error occurred"
+        code: 'server error',
+        message: 'Server error occurred'
       });
       return;
     }
-    let idList = request.body.list;
+    const idList = request.body.list;
     for (let i = 0; i < idList.length; i++) {
-      idList[i] = parseInt(idList[i]);
+      idList[i] = parseInt(idList[i], 10);
     }
-    let q = "delete from coupon where id in ( ";
+    let q = 'delete from coupon where id in ( ';
     for (let i = 0; i < idList.length; i++) {
-      if (i != idList.length - 1) {
+      if (i !== idList.length - 1) {
         q += idList[i] + ',';
       } else {
         q += idList[i] + ')';
       }
     }
-    client.query(q, (err, result) => {
-      if (err) {
+    client.query(q, (err2, result) => {
+      if (err2) {
         response.send({
-          "code": "query error",
-          "message": "Failed to delete data."
+          code: 'query error',
+          message: 'Failed to delete data.'
         });
       } else {
         response.send({
-          "code": "success",
-          "message": "Data has been deleted."
+          code: 'success',
+          message: 'Data has been deleted.'
         });
       }
     });
-
   });
 });
 const randomSet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -272,7 +267,7 @@ const value = {
 const generateCoupon = (email, ms) => {
   const Array1 = email.split('@');
   const Array2 = Array1[1].split('.');
-  const strArray = [Array1[0], Array2[0], Array2[1]];   // str1 @ str2 . str3
+  const strArray = [Array1[0], Array2[0], Array2[1]]; // str1 @ str2 . str3
 
   let entireStr = '';
   let entireLength = 0;
@@ -280,35 +275,32 @@ const generateCoupon = (email, ms) => {
     entireStr += strArray[i];
     entireLength += strArray[i].length;
   }
-  let intArray = [];
+  const intArray = [];
   if (entireLength < 16) {
-
     for (let i = 0; i < entireLength; i++) {
       let temp = 0;
       for (let j = 0; j < entireLength; j++) {
-
-        temp += (value['set' + i][j]) * parseInt(entireStr.charCodeAt(j));
+        temp += (value['set' + i][j]) * parseInt(entireStr.charCodeAt(j), 10);
       }
       intArray.push(temp % 62);
     }
 
     const remainder = 16 - entireLength;
     for (let i = 0; i < remainder; i++) {
-      intArray.push(Math.floor(Math.random() * 61 + 1));
+      const x = Math.random() * 61;
+      intArray.push(Math.floor(x + 1));
     }
-
   } else {
     for (let i = 0; i < entireLength; i++) {
       let temp = 0;
       for (let j = 0; j < entireLength; j++) {
-
-        temp += (value['set' + i][j]) * parseInt(entireStr.charCodeAt(j));
+        temp += (value['set' + i][j]) * parseInt(entireStr.charCodeAt(j), 10);
       }
       intArray.push(temp % 62);
     }
   }
 
-  let enc = [];
+  const enc = [];
   for (let i = 0; i < 16; i++) {
     enc.push(randomSet[intArray[i]]);
   }
