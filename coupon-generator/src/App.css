@@ -1,0 +1,55 @@
+body {
+  background: #E0E0E0;
+}
+.App {
+  text-align: center;
+}
+#info {
+  border-collapse: collapse;
+  margin: 10px auto;
+  border: 1px
+}
+#info #id{
+  width:40px;
+}
+#info #email{
+  width:190px;
+}
+#info #coupon{
+  width: 200px;
+}
+#info #date{
+  width: 225px; 
+}
+#info #check{
+  width: 50px;
+}
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.tr {
+  height: 30px;
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+
