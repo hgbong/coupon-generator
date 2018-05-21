@@ -3,7 +3,7 @@ import path from 'path';
 import open from 'open';
 import webpack from 'webpack';
 import bodyParser from 'body-parser';
-import config from '../webpack.config.dev';
+import config from '../../webpack.config.dev';
 
 
 const port = 2224;
@@ -19,9 +19,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../src/index.html'));
+  res.sendFile(path.join(__dirname, '../resources/index.html'));
 });
-const route = require('./module/module.js');
+const route = require('./routes.js');
 
 app.use('/', route);
 
