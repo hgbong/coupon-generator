@@ -69,11 +69,10 @@ class App extends Component {
 
   createCoupon(e) {
     const { email } = this.state;
-    let isDupReq = false;
     if (this.checkEmail(email)) {
       return;
     }
-    let url = '/coupons';
+    const url = '/coupons';
     const data = {
       email
     };
@@ -83,10 +82,9 @@ class App extends Component {
         this.getTableList();
       })
       .catch((error) => {
-        console.log('catch ');
         if (error.response.data.code === 'conflictEmail') {
           if (window.confirm('Would you like to reissue the coupon?')) {
-            isDupReq = true;
+            this.reCreateCoupon(data);
           } else {
             alert('Canceled.');
           }
@@ -94,22 +92,19 @@ class App extends Component {
           alert(error.response.data.message);
         }
       }); // catch
-    if (isDupReq === true) {
-      console.log('dupReq === true 에 대한 구문 실행');
-      url = '/coupons';
-      axios.put(url, data)
-        .then((response) => {
-          console.log('then 222 ');
-          this.getTableList();
-          if (response === undefined) {
-            return;
-          }
-          alert(response.data.message);
-        });
-    }
     e.preventDefault();
   }
-
+  reCreateCoupon(data) {
+    const url = '/coupons';
+    axios.put(url, data)
+      .then((response) => {
+        this.getTableList();
+        if (response === undefined) {
+          return;
+        }
+        alert(response.data.message);
+      });
+  }
   handleEmailChange(e) {
     this.setState({
       searchString: e.target.value
@@ -195,7 +190,7 @@ class App extends Component {
       })
       .catch((error) => {
         if (error.response.data.code === 'notFoundData') {
-          alert('No results were found for your search.');
+          alert(error.response.data.message);
           this.setState({
             searchString: ''
           });

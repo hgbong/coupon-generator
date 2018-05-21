@@ -27,7 +27,7 @@ function makeError(status, code) {
       error.message = 'No results were found for your search.';
       break;
     case 409:
-      error.message = 'You have a coupon issued in duplicate email.';
+      error.message = 'Coupon issued by duplicate emails exist.';
       break;
     case 500:
       error.message = 'The current server state is not smooth. Please try again later.';
