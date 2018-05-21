@@ -18,7 +18,7 @@ class ValidateCoupon extends React.Component {
   }
 
   confirmValidate(e) {
-    const coupon = this.state.coupon;
+    const { coupon } = this.state;
     if (coupon === '') {
       alert('Please enter your coupon number.');
       return;
@@ -35,7 +35,7 @@ class ValidateCoupon extends React.Component {
         });
       })
       .catch((error) => {
-        alert(error.message);
+        alert(error.response.data.message);
       });
     e.preventDefault();
   }

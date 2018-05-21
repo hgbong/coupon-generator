@@ -69,6 +69,7 @@ class App extends Component {
 
   createCoupon(e) {
     const { email } = this.state;
+    let isDupReq = false;
     if (this.checkEmail(email)) {
       return;
     }
@@ -78,30 +79,34 @@ class App extends Component {
     };
     axios.post(url, data)
       .then((response) => {
-        let isDupReq = false;
         alert(response.data.message);
-        if (response.data.code === 'duplicate error') {
-          if (window.confirm('Would you like to reissue the coupon??')) {
+        this.getTableList();
+      })
+      .catch((error) => {
+        console.log('catch ');
+        if (error.response.data.code === 'conflictEmail') {
+          if (window.confirm('Would you like to reissue the coupon?')) {
             isDupReq = true;
           } else {
             alert('Canceled.');
           }
+        } else {
+          alert(error.response.data.message);
         }
-        if (isDupReq === true) {
-          url = '/coupons';
-          return axios.put(url, data);
-        }
-      })
-      .then((response) => {
-        this.getTableList();
-        if (response === undefined) {
-          return;
-        }
-        alert(response.data.message);
-      })
-      .catch((error) => {
-        console.log(error.response);
-      });
+      }); // catch
+    if (isDupReq === true) {
+      console.log('dupReq === true 에 대한 구문 실행');
+      url = '/coupons';
+      axios.put(url, data)
+        .then((response) => {
+          console.log('then 222 ');
+          this.getTableList();
+          if (response === undefined) {
+            return;
+          }
+          alert(response.data.message);
+        });
+    }
     e.preventDefault();
   }
 
@@ -171,40 +176,30 @@ class App extends Component {
     const { searchString } = this.state;
     const { curPage } = this.state;
     const url = '/coupons/?searchString=' + searchString + '&page=' + curPage;
-
     axios.get(url)
       .then((response) => {
-        if (response.status === 200) {
-          const dataNumber = response.data.number;
-          const p = parseInt((dataNumber - 1) / 10, 10) + 1;
-          const arr = [];
-          for (let i = 1; i <= p; i++) {
-            arr.push(i);
-          }
-          if (response.data.code === 'no data error') {
-            alert('No results were found for your search.');
-            this.setState({
-              searchString: ''
-            });
-            return;
-          }
-          this.setState({
-            pages: arr,
-            datas: response.data.data
-          }, () => {
-            this.checkListReset();
-            this.resetAllBtn();
-            this.allCheckboxReset();
-          });
-        } else {
-          console.log(response);
-
-
-          alert('No results were found for your search.');
+        const dataNumber = response.data.number;
+        const p = parseInt((dataNumber - 1) / 10, 10) + 1;
+        const arr = [];
+        for (let i = 1; i <= p; i++) {
+          arr.push(i);
         }
+        this.setState({
+          pages: arr,
+          datas: response.data.data
+        }, () => {
+          this.checkListReset();
+          this.resetAllBtn();
+          this.allCheckboxReset();
+        });
       })
       .catch((error) => {
-        alert(error);
+        if (error.response.data.code === 'notFoundData') {
+          alert('No results were found for your search.');
+          this.setState({
+            searchString: ''
+          });
+        }
       });
   }
 
