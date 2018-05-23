@@ -6,6 +6,9 @@ import Contents from './components/Contents';
 import List from './components/List';
 import Page from './components/Page';
 
+const Promise = require('es6-promise').Promise;
+
+Promise.polyfill();
 class App extends Component {
   constructor(props) {
     super(props);
