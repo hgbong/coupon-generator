@@ -43,23 +43,23 @@ router.post('/coupons', (request, response) => {
   const { email } = request.body;
   const createdDate = new Date();
   const couponNumber = generateCoupon(email, createdDate.getMilliseconds());
-  pool.connect((err, client, release) => {
+  pool.connect((connectionErr, client, release) => {
     release();
-    if (err) {
+    if (connectionErr) {
       response.status(500).send(makeError(500, 'serverError'));
       return;
     }
     const q = 'select email from coupon where email=$1';
     client.query(q, [
       email
-    ], (err1, result) => {
-      if (err1) {
+    ], (queryErr, result) => {
+      if (queryErr) {
         response.status(500).send(makeError(500, 'serverError'));
       } else if (result.rowCount === 0) {
         client.query("insert into coupon values (nextval('seq'),$1,$2,current_timestamp)", [
           email, couponNumber
-        ], (err2) => {
-          if (err2) {
+        ], (queryErr) => {
+          if (queryErr) {
             response.status(500).send(makeError(500, 'serverError'));
           } else {
             response.send({
@@ -78,17 +78,17 @@ router.put('/coupons', (request, response) => {
   const { email } = request.body;
   const createdDate = new Date();
   const couponNumber = generateCoupon(email, createdDate.getMilliseconds());
-  pool.connect((err1, client, release) => {
+  pool.connect((connectionErr, client, release) => {
     release();
-    if (err1) {
+    if (connectionErr) {
       response.status(500).send(makeError(500, 'serverError'));
       return;
     }
     const q = 'update coupon set coupon=$1, create_at=$2 where email=$3';
     client.query(q, [
       couponNumber, createdDate, email
-    ], (err2, result) => {
-      if (err2) {
+    ], (queryErr, result) => {
+      if (queryErr) {
         response.status(500).send(makeError(500, 'serverError'));
       } else {
         response.send({
@@ -101,9 +101,9 @@ router.put('/coupons', (request, response) => {
 });
 
 router.get('/coupons/', (request, response) => {
-  pool.connect((err1, client1, release1) => {
-    release1();
-    if (err1) {
+  pool.connect((connectionErr, client1, release) => {
+    release();
+    if (connectionErr) {
       response.status(500).send(makeError(500, 'serverError'));
       return;
     }
@@ -113,8 +113,8 @@ router.get('/coupons/', (request, response) => {
     let q = "select * from coupon where email like '%" + searchString + "%' order by id desc limit 10 offset $1";
     client1.query(q, [
       (page - 1) * 10
-    ], (err2, result1) => {
-      if (err2) {
+    ], (queryErr, result1) => {
+      if (queryErr) {
         response.status(500).send(makeError(500, 'serverError'));
       } else {
         if (result1.rowCount === 0) {
@@ -123,9 +123,9 @@ router.get('/coupons/', (request, response) => {
         }
         data = result1.rows;
 
-        pool.connect((err3, client2, release2) => {
-          release2();
-          if (err3) {
+        pool.connect((queryErr, client2, release) => {
+          release();
+          if (queryErr) {
             response.status(500).send(makeError(500, 'serverError'));
             return;
           }
@@ -137,13 +137,13 @@ router.get('/coupons/', (request, response) => {
           }
           client2.query(
             q,
-            (err4, result2) => {
-              if (err4) {
+            (queryErr, result) => {
+              if (queryErr) {
                 response.status(500).send(makeError(500, 'serverError'));
               } else {
                 response.send({
                   data,
-                  number: result2.rows[0].count
+                  number: result.rows[0].count
                 });
               }
             }
@@ -155,9 +155,9 @@ router.get('/coupons/', (request, response) => {
 });
 
 router.get('/coupons/validation/:coupon', (request, response) => {
-  pool.connect((err1, client, release) => {
+  pool.connect((connectionErr, client, release) => {
     release();
-    if (err1) {
+    if (connectionErr) {
       response.status(500).send(makeError(500, 'serverError'));
       return;
     }
@@ -165,8 +165,8 @@ router.get('/coupons/validation/:coupon', (request, response) => {
     const q = 'select id from coupon where coupon=$1';
     client.query(q, [
       coupon
-    ], (err2, result) => {
-      if (err2) {
+    ], (queryErr, result) => {
+      if (queryErr) {
         response.status(500).send(makeError(500, 'serverError'));
       } else if (result.rowCount !== 0) {
         response.send({
@@ -180,9 +180,9 @@ router.get('/coupons/validation/:coupon', (request, response) => {
   });
 });
 router.delete('/coupons', (request, response) => {
-  pool.connect((err1, client, release) => {
+  pool.connect((connectionErr, client, release) => {
     release();
-    if (err1) {
+    if (connectionErr) {
       response.status(500).send(makeError(500, 'serverError'));
       return;
     }
@@ -198,8 +198,8 @@ router.delete('/coupons', (request, response) => {
         q += idList[i] + ')';
       }
     }
-    client.query(q, (err2, result) => {
-      if (err2) {
+    client.query(q, (queryErr, result) => {
+      if (queryErr) {
         response.status(500).send(makeError(500, 'serverError'));
       } else {
         response.send({

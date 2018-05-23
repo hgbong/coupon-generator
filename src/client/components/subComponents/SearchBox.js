@@ -10,7 +10,7 @@ class SearchBox extends Component {
           value={this.props.searchString}
           onChange={this.props.handleEmailChange}
         />
-        <button data-value={this.props.searchString} onClick={this.props.Search}>Search</button>
+        <button data-value={this.props.searchString} onClick={this.props.search}>Search</button>
       </div>
     );
   }

@@ -6,7 +6,7 @@ import bodyParser from 'body-parser';
 import config from '../../webpack.config.dev';
 
 
-const port = 2224;
+const port = 3333;
 const app = express();
 const compiler = webpack(config);
 

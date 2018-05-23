@@ -16,11 +16,11 @@ class Contents extends Component {
         <ValidateCoupon />
         <SearchBox
           handleEmailChange={this.props.handleEmailChange}
-          Search={this.props.Search}
+          search={this.props.search}
           searchString={this.props.searchString}
         />
         <DeleteCoupon
-          DeleteData={this.props.DeleteData}
+          deleteData={this.props.deleteData}
         />
       </div>
     );

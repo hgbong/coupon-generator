@@ -28,8 +28,8 @@ class App extends Component {
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.checkEmail = this.checkEmail.bind(this);
-    this.Search = this.Search.bind(this);
-    this.DeleteData = this.DeleteData.bind(this);
+    this.search = this.search.bind(this);
+    this.deleteData = this.deleteData.bind(this);
     this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     this.getTableList = this.getTableList.bind(this);
     this.checkListReset = this.checkListReset.bind(this);
@@ -115,7 +115,7 @@ class App extends Component {
     });
   }
 
-  Search(e) {
+  search(e) {
     this.setState({
       searchString: e.target.dataset.value,
       curPage: 1
@@ -124,7 +124,7 @@ class App extends Component {
     });
   }
 
-  DeleteData() {
+  deleteData() {
     const { checkList } = this.state;
     const list = [];
     for (let i = 0; i < checkList.length; i++) {
@@ -136,12 +136,10 @@ class App extends Component {
       alert('Check the data to be deleted.');
       return;
     }
-    const listObj = {};
-    listObj.list = list;
     const url = '/coupons';
 
     axios.delete(url, {
-      data: listObj
+      data: { list }
     })
       .then((response) => {
         alert(response.data.message);
@@ -304,10 +302,10 @@ class App extends Component {
           email={this.state.email}
 
           handleEmailChange={this.handleEmailChange}
-          Search={this.Search}
+          search={this.search}
           searchString={this.state.searchString}
 
-          DeleteData={this.DeleteData}
+          deleteData={this.deleteData}
         />
 
         <List
