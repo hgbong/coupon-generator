@@ -30,7 +30,14 @@ class List extends Component {
       this.props.setAllUnCheck();
     }
   }
-  render() {
+
+  componentDidUpdate() {
+    if (this.props.isAllCheckBtnReset === true) {
+      document.getElementsByName('fullCheckbox')[0].checked = false;
+      this.props.reverseAllCheckboxReset();
+    }
+  }
+  componentWillMount() {
     if (this.props.isReset === true) {
       const boxes = document.getElementsByClassName('checkbox');
 
@@ -39,12 +46,8 @@ class List extends Component {
       }
       this.props.reverseResetAllBtn();
     }
-
-    if (this.props.isAllCheckBtnReset === true) {
-      document.getElementsByName('fullCheckbox')[0].checked = false;
-      this.props.reverseAllCheckboxReset();
-    }
-
+  }
+  render() {
     const table = (
       <table id="info">
         <thead>

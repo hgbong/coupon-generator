@@ -86,6 +86,7 @@ class App extends Component {
       })
       .catch((error) => {
         if (error.response.data.code === 'conflictEmail') {
+          alert(error.response.data.message);
           if (window.confirm('Would you like to reissue the coupon?')) {
             this.reCreateCoupon(data);
           } else {
